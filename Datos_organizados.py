@@ -92,7 +92,7 @@ st.title("☁️ Procesador de datos meteorológicos")
 archivo=st.file_uploader("Sube el archivo .txt",type="txt")
 if archivo:
     try:
-        df=procesar(archivo)
+        df=procesar_buffer(archivo)
         st.success(f"Procesadas {len(df)} horas de datos.")
         st.dataframe(df,use_container_width=True)
 
@@ -101,8 +101,17 @@ if archivo:
         st.download_button("⬇️ Descargar CSV",csv.getvalue(),
                            "promedios_horarios.csv","text/csv")
 
+        # Descarga Excel en memoria
+        bio = BytesIO()
+        with pd.ExcelWriter(bio, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False)
+        st.download_button("⬇️ Descargar Excel", bio.getvalue(),
+                           "promedios_horarios.xlsx",
+                           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
     except Exception as e:
         st.error(f"Error: {e}")
 else:
     st.info("Cargar un .txt para comenzar.")
+
 
