@@ -81,9 +81,6 @@ def procesar(path_txt):
     except ImportError:
         print(f"✅ Exportado: {csv_out.name} (instala openpyxl para Excel)")
 
-# ───── 4. Ejecuta ───────────────────────────────────────────────────
-if __name__ == "__main__":
-    procesar(r"C:/Users/camii/OneDrive/Escritorio/Analisis_datos/30_05_2025.txt")
     
 # ---------- interfaz Streamlit ----------
 st.set_page_config(page_title="Promedios horarios",page_icon="☁️")
