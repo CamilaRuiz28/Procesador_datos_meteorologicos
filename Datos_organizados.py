@@ -81,7 +81,22 @@ def procesar(path_txt):
     except ImportError:
         print(f"✅ Exportado: {csv_out.name} (instala openpyxl para Excel)")
 
-    
+def procesar_buffer(uploaded_file):
+    filas = [parse_line(l.decode('utf-8','ignore')) for l in uploaded_file.readlines()]
+    filas = [f for f in filas if f]
+    if not filas:
+        raise ValueError("Sin registros válidos.")
+    cols = ["DirViento","VelViento","DirVientoCorr","Presion","Humedad",
+            "Temp","PuntoRocio","PrecipTotal","IntensidadPrec",
+            "Irradiancia","FechaISO","Flag"]
+    df = pd.DataFrame(filas,columns=cols)
+    num = [c for c in cols if c not in ("FechaISO","Flag")]
+    df[num] = df[num].apply(pd.to_numeric,errors="coerce")
+    df["FechaISO"] = pd.to_datetime(df["FechaISO"],errors="coerce")
+    df = df.dropna(subset=["FechaISO"])
+    df["FechaHora"] = df["FechaISO"].dt.floor("h")
+    return df.groupby("FechaHora")[num].mean().reset_index()
+
 # ---------- interfaz Streamlit ----------
 st.set_page_config(page_title="Promedios horarios",page_icon="☁️")
 st.title("☁️ Procesador de datos meteorológicos")
